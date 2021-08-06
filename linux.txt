@@ -1,0 +1,1 @@
+수행 시 -Djava.awt.headless=true option 필요
