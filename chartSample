@@ -246,3 +246,20 @@ spec:
     
     
 kubectl apply -f devopsDeploy --recursive
+
+
+ FROM "os, jvm 설치된 base Image"
+ 
+ #JAVA_HOME 설정
+ ENV JAVA_HOME /usr/lib/jvm/zulu8.52.0.23-ca-jdk8.0.282-linux_x64
+
+ #실행할 jar, pod health check shell, jar 실행 shell Image에 복사 
+ COPY ./hello-devops.jar /root/
+ COPY ./health-check.sh /root/
+ COPY ./start.sh /root/
+
+ #실행 권한 부여 및 실행 
+ RUN chmod +x /root/start.sh
+ CMD ["/root/start.sh"]
+
+ WORKDIR /
