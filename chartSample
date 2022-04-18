@@ -129,7 +129,7 @@ metadata:
     kubernetes.io/ingress.class: nginx
 spec:
   rules:
-  - host: ictdevap.sec.samsung.net
+  - host: "hostname"
     http:
       paths:
       - backend:
