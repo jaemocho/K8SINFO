@@ -1,0 +1,59 @@
+ansiColor('xterm'){
+      sh "export ANSIBLE_FORCE_COLOR=true; export PYTHONUNBUFFERED=1; ansible-playbook [playbook명] --extra-vars \'${FILE_LIST}\'"
+}
+
+jenkins의 FILE_LIST 파라미터 
+
+parameter :  "{"id_list": {"abc":"abc"}, "file_list":[{"domain":"a", "hostIp":"1"}, {"domain":"b", "hostIp":"2"}, {"domain":"c", "hostIp":"3"}] }
+
+---
+- name: dyamic inventory setting
+  hosts: localhost
+  tasks: 
+  
+  - add_host:
+       hostname: "{{ item }}"
+       groups: targetServer
+    loop: '{{ file_list | json_query(query) | unique }}'
+    vars:
+       query: "[*].hostIp"
+
+- name: Build docker image & push 
+  hosts: targetServer
+  tasks: 
+
+  - name: Build docker image
+    shell: 'xxx.sh {{ item.domain }} {{ valval[item.domain] | default("11111") }}
+    args:
+      chdir: 'path'
+    loop: '{{ file_list | json_query(query) }}'
+    vars:
+      query: "[?hostIp == '{{ inventory_hostname }}' ]"
+      id:
+        pre: "xxxx"
+        ops: "yyy"
+      valval: 
+        pre: "vxxx"
+        ops: "xyyy"
+   register: build_img_result
+   ignore_errors: yes
+
+  post_tasks:
+  
+  - name: debug build image result
+    debug:
+       var: build_img_result
+
+  - name: debug post format
+    debug:
+       msg: ' { "build_img_result" : {{ build_img_result | to_json }} , "id_list" : {{ id_list | to_json }}, "hostIp" : {{ inventory_hostname | to_json }} '
+
+  - name: post build job result
+    uri:
+      url: 'http://xxxxxxxxxx'
+      method: POST
+      body: ' { "build_img_result" : {{ build_img_result | to_json }} , "id_list" : {{ id_list | to_json }}, "hostIp" : {{ inventory_hostname | to_json }} '
+      status_code: 200
+      body_format: json
+    ignore_errors: yes
+  
